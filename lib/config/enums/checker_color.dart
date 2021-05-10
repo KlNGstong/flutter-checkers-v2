@@ -1,0 +1,5 @@
+enum CheckerColor {
+  white,
+
+  black
+}
