@@ -152,21 +152,10 @@ class GameRules {
     return listDetails;
   }
 
-  MovePiece movePieceByOffset(Checker checker, Coord offset) {}
-
-  MovePiece _findKillMoveByOffset(Checker checker, Coord offset,
-      [DetourDetails details]) {
-    if (details == null) details = DetourDetails(offset);
-  }
-
-  MoveDetails _findMoveByOffset(Checker checker, Coord offset) {}
-
-  bool _includeDangureChecker() {}
-
   // void moveChecker(MoveDetails details) {
   //   details.activeChecker.jumpTo(details.coord);
 
-  //   if (details.destroyedChecker != null) {
+  //   if (details.destroyedCheck==er != null) {
   //     _chequers = _chequers.removeChecker(details.destroyedChecker);
   //   }
   // }
@@ -193,15 +182,6 @@ class GameRules {
       color == CheckerColor.white
           ? RuleConstants.offsetsForWhite
           : RuleConstants.offsetsForBlack;
-}
-
-class DetourDetails {
-  final Coord offset;
-  MovePiece movePiece;
-  int times = 0;
-  Checker current;
-
-  DetourDetails(this.offset);
 }
 
 class CheckerPositionInfo {
@@ -231,20 +211,4 @@ class CheckerPositionInfo {
   CoordVector get vector {
     return CoordVector(nextChecker.coord, itterableOffset, nextObjectRate);
   }
-}
-
-class SquareInfo {
-  final bool isOverflow;
-  final Checker checker;
-  final Coord coord;
-
-  SquareInfo.filledBy(this.checker)
-      : this.isOverflow = false,
-        this.coord = checker.coord;
-  SquareInfo.overflow(this.coord)
-      : this.isOverflow = true,
-        this.checker = null;
-  SquareInfo.empty(this.coord)
-      : this.isOverflow = false,
-        this.checker = null;
 }
