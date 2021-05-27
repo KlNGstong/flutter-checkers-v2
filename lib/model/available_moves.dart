@@ -6,7 +6,7 @@ class AvailableMoves {
 
   bool isActiveSquare(Coord coord) {
     final founded = available.firstWhere(
-        (details) => details.vector.cross(coord),
+        (details) => details.vector.crossedBy(coord),
         orElse: () => null);
 
     return founded != null;
@@ -20,8 +20,9 @@ class AvailableMoves {
     return founded != null;
   }
 
-  MoveDetails findDetails(Coord coord) => available
-      .firstWhere((details) => details.vector.cross(coord), orElse: () => null);
+  MoveDetails findDetails(Coord coord) =>
+      available.firstWhere((details) => details.vector.crossedBy(coord),
+          orElse: () => MoveDetails());
 
   AvailableMoves.empty() : this.available = [];
   AvailableMoves.from(this.available);

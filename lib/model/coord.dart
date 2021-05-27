@@ -14,10 +14,10 @@ class Coord {
       : this.row = rate,
         this.column = rate;
   Coord.fromIndex(int index)
-      : this.row = index % 100,
-        this.column = index ~/ 100;
+      : this.row = index % 10,
+        this.column = index ~/ 10;
 
-  int get index => column * 100 + row;
+  int get index => column * 10 + row;
   bool get isWhite => (column + row) % 2 == 0;
 
   TouchDetails detailsWith(Checker checker) =>

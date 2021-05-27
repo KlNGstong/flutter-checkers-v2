@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_checkers/model/chequers.dart';
+import 'package:flutter_checkers/model/board.dart';
+import 'package:flutter_checkers/model/checker.dart';
 import 'package:flutter_checkers/model/coord.dart';
 import 'package:flutter_checkers/model/touch_details.dart';
 import 'package:flutter_checkers/util/board.dart';
@@ -7,12 +8,20 @@ import 'package:flutter_checkers/view/widget/active_square.dart';
 import 'package:flutter_checkers/view/widget/checker_view.dart';
 
 class GameBoard extends StatelessWidget {
-  const GameBoard({Key key, this.onTapSquare, this.chequers, this.touchDetails})
+  const GameBoard(
+      {Key key,
+      this.onTapSquare,
+      this.board,
+      this.touchDetails,
+      this.onTapChecker,
+      this.onTapActiveSquare})
       : super(key: key);
 
   final TouchDetails touchDetails;
-  final Chequers chequers;
+  final Board board;
   final Function(Coord) onTapSquare;
+  final Function(Checker) onTapChecker;
+  final Function(Coord) onTapActiveSquare;
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +31,8 @@ class GameBoard extends StatelessWidget {
       height: BoardUtil.boardSize * 1.1,
       child: Center(
         child: SizedBox(
-          width: BoardUtil.boardSize,
-          height: BoardUtil.boardSize,
+          width: BoardUtil.boardSize * 1,
+          height: BoardUtil.boardSize * 1,
           child: Table(
             children: List.generate(
               BoardUtil.rate,
@@ -41,7 +50,7 @@ class GameBoard extends StatelessWidget {
   }
 
   Widget _square(Coord coord) {
-    final founded = chequers.findByCoord(coord);
+    final founded = board.findByCoord(coord);
     final isActiveChecker = touchDetails.includeChecker
         ? touchDetails.activeChecker.coord == coord
         : false;
@@ -55,18 +64,25 @@ class GameBoard extends StatelessWidget {
         : false;
 
     Widget template = Container();
+    Function onTap;
     Color squareColor = coord.isWhite ? Colors.white : Colors.grey;
 
-    if (founded != null) template = CheckerView(founded);
+    if (founded != null) {
+      template = CheckerView(founded);
+      onTap = () => this.onTapChecker(founded);
+    }
 
     if (isActiveChecker) squareColor = Colors.blue[100];
 
     if (isDangerChecker) squareColor = Colors.red[400];
 
-    if (isActiveSquare) template = ActiveSquare();
+    if (isActiveSquare) {
+      template = ActiveSquare();
+      onTap = () => this.onTapActiveSquare(coord);
+    }
 
     return GestureDetector(
-        onTap: () => onTapSquare(coord),
+        onTap: onTap,
         child: Container(
             color: squareColor,
             width: BoardUtil.squareSize,
@@ -74,7 +90,7 @@ class GameBoard extends StatelessWidget {
             child: Stack(
               children: [
                 template,
-                // Text(coord.index.toString()),
+                Text(coord.index.toString().split('').reversed.join('')),
               ],
             )));
   }

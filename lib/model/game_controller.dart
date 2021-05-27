@@ -1,44 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_checkers/config/enums/checker_color.dart';
-import 'package:flutter_checkers/model/available_moves.dart';
+import 'package:flutter_checkers/model/board.dart';
 import 'package:flutter_checkers/model/checker.dart';
 import 'package:flutter_checkers/model/checker_generator.dart';
-import 'package:flutter_checkers/model/chequers.dart';
-import 'package:flutter_checkers/model/game_rules.dart';
+import 'package:flutter_checkers/model/chequers_core.dart';
 import 'package:flutter_checkers/model/touch_details.dart';
-
 import 'coord.dart';
 
 class GameController extends ChangeNotifier {
-  Chequers chequers;
-  CheckerColor turnColor = CheckerColor.white;
+  ChequersCore _core;
+
   TouchDetails touchDetails = TouchDetails.empty();
 
+  CheckerColor get turnColor => _core.turnColor;
+  Board get board => _core.activeBoard;
+
   void onTapSquare(Coord coord) {
-    final rules = GameRules.forInlineCalculation(chequers, turnColor);
-    final checker = chequers.findByCoord(coord);
+    notifyListeners();
+  }
 
-    if (checker != null) {
-      touchDetails.activeChecker = checker;
-      touchDetails.moves =
-          AvailableMoves.from(rules.findPeacefulMoves(checker));
+  void onTapActiveSquare(Coord coord) {
+    final moveDetails = touchDetails.availableMoves.findDetails(coord);
+    final directly = moveDetails.directly(coord);
 
-      // print(rules.findCheckerOnTheWay(checker, Coord(1, -1)));
-    } else if (touchDetails.activeChecker != null) {
-      touchDetails = TouchDetails.empty();
-    } else
-      touchDetails.touched = coord;
+    _core.processMove(directly);
+
+    if (!_core.isLastCompleted) {
+      return onTapChecker(_core.previousChecker);
+    }
+
+    touchDetails = TouchDetails.empty();
 
     notifyListeners();
   }
 
-  void onGameEnd() {}
+  void onTapChecker(Checker checker) {
+    if (!_core.isTapAvaibleChecker(checker)) return;
+
+    touchDetails.activeChecker = checker;
+    touchDetails.availableMoves = _core.safeCalculateAvailableFor(checker);
+
+    notifyListeners();
+  }
 
   GameController.autoFilled() {
     final generated = CheckerGenerator.generateNormal();
 
-    chequers = Chequers.from(generated);
+    final board = Board.from(generated);
+    _core = ChequersCore.forInlineCalculation(board, CheckerColor.white);
   }
 
-  GameController.custom(this.chequers);
+  GameController.custom(board) {
+    _core = ChequersCore.forInlineCalculation(board, CheckerColor.white);
+  }
 }
